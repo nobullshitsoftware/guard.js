@@ -2,6 +2,10 @@ const http = require('http');
 const process = require('process');
 //..etc
 
+// TODO: This file is susceptible to hijacking of some global prototype chains!
+// E.g. Array.prototype.reduce or Array.prototype.slice. Should stop using
+// those!
+
 let currentPerms = {} // ALL_PERMS;
 
 let sharedToken;
