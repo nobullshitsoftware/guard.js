@@ -16,6 +16,8 @@ function setup() {
   }
 }
 
+export class SecurityError extends Error { }
+
 export function withPerm(token, perms, cb) {
   if (!sharedToken) {
     throw new Error('please call .setToken with a secret symbol first');
@@ -40,7 +42,7 @@ export function withPerm(token, perms, cb) {
   }
 }
 
-export function init(s) {
+export function init() {
   if (sharedToken) {
     throw SecurityError('guard.js already initialised');
   }
