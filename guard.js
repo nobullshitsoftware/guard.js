@@ -16,7 +16,7 @@ function setup() {
   }
 }
 
-export class SecurityError extends Error { }
+class SecurityError extends Error { }
 
 export function withPerm(token, perms, cb) {
   if (!sharedToken) {
