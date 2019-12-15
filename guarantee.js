@@ -40,7 +40,7 @@ const guarantee = function () {
         },
         calls(expectedCalls, ms) {
             if (ms) {
-                setTimeout(() => calls(expected))
+                setTimeout(() => guarantee.calls(expectedCalls))
             } else {
                 const mismatches = Object.keys(expectedCalls).filter((key) => actualCalls[key] != expectedCalls[key])
                 if (mismatches.length) {
