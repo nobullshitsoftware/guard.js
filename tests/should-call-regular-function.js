@@ -1,8 +1,7 @@
 const guard = require('../guard')();
 const token = guard.token;
 
-const guarantee = require('guarantee')();
-
+const guarantee = require('../
 
 const myfunc = guard.wrap(['myfunc'], () => 123);
 
