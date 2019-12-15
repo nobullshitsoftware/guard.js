@@ -21,3 +21,6 @@ guarantee.throws(() =>
     }),
     'calls should throw for mismatching numbers of calls'
 );
+
+// Copyright © 2019 guard.js authors (see AUTHORS)
+// This program is licensed under the AGPL v3

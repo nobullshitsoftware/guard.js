@@ -9,3 +9,6 @@ function readCwd() {
 }
 
 assert.ok(readCwd(), 'can whitelist process.cwd');
+
+// Copyright © 2019 guard.js authors (see AUTHORS)
+// This program is licensed under the AGPL v3

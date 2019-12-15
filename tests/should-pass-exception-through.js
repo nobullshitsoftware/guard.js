@@ -18,3 +18,5 @@ try {
   assert.equal(e, 432, 'should pass error through verbatim');
 }
 
+// Copyright © 2019 guard.js authors (see AUTHORS)
+// This program is licensed under the AGPL v3

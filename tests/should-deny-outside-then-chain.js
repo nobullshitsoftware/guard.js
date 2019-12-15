@@ -17,3 +17,6 @@ p.then(() => 12)
 });
 
 guarantee.calls({equal: 1}, 100)
+
+// Copyright © 2019 guard.js authors (see AUTHORS)
+// This program is licensed under the AGPL v3
