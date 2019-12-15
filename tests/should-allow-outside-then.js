@@ -1,7 +1,6 @@
-const guard = require('../guard')();
 const token = guard.token;
 
-const assert = require('assert');
+const guarantee = require('guarantee')();
 
 
 const myfunc = guard.wrap(['myfunc'], () => 123);
@@ -13,6 +12,8 @@ const p = guard.withPerm(token, {myfunc: true}, () => {
 
 p.then(() => {
   // withPerm returned a promise; they must carry the permission context
-  assert.equal(myfunc(), 123, 'promise should keep the permission context');
-  // TODO: Assert it actually got here
+  guarantee.equal(123, myfunc(), 'promise should keep the permission context');
 });
+
+
+guarantee.calls({equal: 1})

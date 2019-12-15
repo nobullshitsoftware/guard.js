@@ -1,5 +1,5 @@
 const guard = require('../guard')();
 
-const assert = require('assert');
+const guarantee = require('guarantee')();
 
-assert.ok(guard.token, 'guard.init() should return a token');
+guarantee.ok(guard.token, 'guard.init() should return a token');

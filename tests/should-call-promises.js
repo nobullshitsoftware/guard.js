@@ -1,7 +1,7 @@
 const guard = require('../guard')();
 const token = guard.token;
 
-const assert = require('assert');
+const guarantee = require('guarantee')();
 
 
 const myfunc = guard.wrap(['myfunc'], () => 123);
@@ -13,10 +13,13 @@ async function sub() {
 async function main() {
   await guard.withPerm(token, {myfunc: true}, async () => {
     const val = await sub();
-    assert.equal(val, myfunc(), 'call myfunc after await');
-    // TODO: Assert this was called
+    guarantee.equal(val, myfunc(), 'call myfunc after await');
   });
 }
 
 
 main();
+
+guarantee.calls({
+    equal: 1,
+})
