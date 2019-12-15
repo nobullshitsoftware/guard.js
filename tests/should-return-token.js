@@ -1,4 +1,4 @@
-const guard = require('./guard');
+const guard = require('../guard');
 
 const assert = require('assert');
 
