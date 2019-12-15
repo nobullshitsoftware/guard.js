@@ -1,22 +1,59 @@
 const http = require('http');
+const process = require('process');
 //..etc
+
+// TODO: This file is susceptible to hijacking of some global prototype chains!
+// E.g. Array.prototype.reduce or Array.prototype.slice. Should stop using
+// those!
 
 let currentPerms = {} // ALL_PERMS;
 
 let sharedToken;
 
-function setup() {
-  const origFetch = http.fetch;
-  http.fetch = function proxyFetch() {
-    if (currentPerms?.http?.fetch === 'allow') {
-      return origFetch.call(http, arguments);
+class SecurityError extends Error { }
+
+function get(obj, path) {
+  if (!obj || !path || !path.length) {
+    return obj;
+  }
+  return get(obj[path[0]], path.slice(1));
+}
+
+function get2(obj, path) {
+  return path.reduce((o, k) => o && o[k], obj);
+}
+
+function wrap(path, f) {
+  return function() {
+    if (get(currentPerms, path)) {
+      return f.apply(this, arguments);
     } else {
-      throw new SecurityError('not allowed');
+      const pathstr = path.join('.');
+      throw new SecurityError(`guard: ${pathstr} not allowed`);
     }
   }
 }
 
-class SecurityError extends Error { }
+function wrapProp(path, obj, key) {
+  const oldval = obj[key];
+  Object.defineProperty(obj, key, { get: wrap(path, () => oldval) });
+}
+
+function setup() {
+  // TODO: Check node version; if > our supported API then we don't guard
+  // potential new functions. Warn.
+  http.fetch = wrap(['http', 'request'], http.request);
+  http.get = wrap(['http', 'get'], http.get);
+  process.abort = wrap(['process', 'abort'], process.abort);
+  //wrapProp(['process', 'argv'], process, 'argv')
+  // Already a property. TODO: Need fixing or harmless?
+  //wrapProp(['process', 'argv0'], process, 'argv0')
+  process.chdir = wrap(['process', 'chdir'], process.chdir);
+  // This is accessed purely on require, so can't protect this
+  //wrapProp(['process', 'config'], process, 'config');
+  process.cwd = wrap(['process', 'cwd'], process.cwd);
+  //wrapProp(['process', 'env'], process, 'env');
+}
 
 function withPerm(token, perms, cb) {
   if (!sharedToken) {
@@ -29,7 +66,7 @@ function withPerm(token, perms, cb) {
   try {
     currentPerms = perms;
     const ret = cb();
-    if (ret.then) {
+    if (ret && ret.then) {
       return {
         then(ok) {
           return withPerm(token, perms, ok);
@@ -42,12 +79,14 @@ function withPerm(token, perms, cb) {
   }
 }
 
-export default function init() {
+module.exports = function init() {
   const ret = {
     withPerm,
+    wrap,
   };
   if (!sharedToken) {
-    ret.token = sharedToken = new Symbol('guard.js-token');
+    ret.token = sharedToken = Symbol('guard.js-token');
+    setup();
   }
   return ret;
 }
