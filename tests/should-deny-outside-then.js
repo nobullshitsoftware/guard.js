@@ -12,8 +12,7 @@ const p = guard.withPerm(token, {myfunc: true}, () => {
 
 
 p.then(() => {
-  // withPerm returned a promise; they must carry the permission context
-  guarantee.equal(123, myfunc(), 'promise should keep the permission context');
+  guarantee.throws(myfunc, 'promise should not keep permission ctx');
 });
 
 

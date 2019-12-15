@@ -15,11 +15,12 @@ async function main() {
     const val = await sub();
     guarantee.equal(val, myfunc(), 'call myfunc after await');
   });
+
+  guarantee.calls({
+      equal: 1,
+  })
 }
 
 
 main();
 
-guarantee.calls({
-    equal: 1,
-})

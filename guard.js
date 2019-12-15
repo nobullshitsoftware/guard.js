@@ -25,13 +25,36 @@ function get2(obj, path) {
 
 const realSetImmediate = setImmediate;
 global.setImmediate = function guardWrappedSetImmediate(f) {
+  return realSetImmediate(keepState(f));
+};
+
+const realSetTimeout = setTimeout;
+global.setTimeout = function guardWrappedSetTimeout(f, ms) {
+  return realSetTimeout(keepState(f), ms);
+};
+
+const realNextTick = process.nextTick;
+process.nextTick = function guardWrappedNextTick() {
+  const args = Array.from(arguments);
+  args[0] = keepState(args[0]);
+  return realNextTick.apply(this, args);
+};
+
+// Hack Node's native Promise because it directly manipulates the event queue.
+const realThen = Promise.prototype.then;
+Promise.prototype.then = function guardWrappedPromiseThen(good, bad) {
+  return realThen.call(this, keepState(good), keepState(bad));
+}
+
+function keepState(f) {
+  if (!f) { return f; }
   // this looks SO dodgy. Must check properly.
   const token = sharedToken;
   const perms = currentPerms;
-  realSetImmediate(() => {
-    withPerm(token, perms, f);
-  });
-};
+  return function() {
+    return withPerm(token, perms, () => f.apply(this, arguments));
+  };
+}
 
 function wrap(path, f) {
   return function() {
@@ -78,8 +101,11 @@ function withPerm(token, perms, cb) {
     const ret = cb();
     if (ret && ret.then) {
       return {
-        then(ok) {
-          return withPerm(token, perms, ok);
+        then(ok, fail) {
+          return ret.then(
+            (v) => withPerm(token, perms, () => ok(v)),
+            (e) => withPerm(token, perms, () => fail(e))
+          );
         },
       };
     }
