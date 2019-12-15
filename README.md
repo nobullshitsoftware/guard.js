@@ -9,10 +9,10 @@ Example:
 
 
 ```js
-# Fail
+// Fail
 console.log(process.cwd());
 
-# OK
+// OK
 guard.withPerm(guard.token, {process: {cwd: true}}, () => {
   console.log(process.cwd());
 });
