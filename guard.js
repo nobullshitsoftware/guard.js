@@ -32,7 +32,7 @@ function wrap(path, f) {
 
 function wrapProp(path, obj, key) {
   const oldval = obj[key];
-  Object.defineProperty(obj, key, { get: wrap(path, () => oldval); });
+  Object.defineProperty(obj, key, { get: wrap(path, () => oldval) });
 }
 
 function setup() {
@@ -41,11 +41,14 @@ function setup() {
   http.fetch = wrap(['http', 'request'], http.request);
   http.get = wrap(['http', 'get'], http.get);
   process.abort = wrap(['process', 'abort'], process.abort);
-  wrapProp(['process', 'argv'], process, 'argv')
-  wrapProp(['process', 'argv0'], process, 'argv0')
+  //wrapProp(['process', 'argv'], process, 'argv')
+  // Already a property. TODO: Need fixing or harmless?
+  //wrapProp(['process', 'argv0'], process, 'argv0')
   process.chdir = wrap(['process', 'chdir'], process.chdir);
-  wrapProp(['process', 'config'], process, 'config');
+  // This is accessed purely on require, so can't protect this
+  //wrapProp(['process', 'config'], process, 'config');
   process.cwd = wrap(['process', 'cwd'], process.cwd);
+  //wrapProp(['process', 'env'], process, 'env');
 }
 
 function withPerm(token, perms, cb) {
@@ -72,13 +75,13 @@ function withPerm(token, perms, cb) {
   }
 }
 
-export default function init() {
+module.exports = function init() {
   const ret = {
     withPerm,
     wrap,
   };
   if (!sharedToken) {
-    ret.token = sharedToken = new Symbol('guard.js-token');
+    ret.token = sharedToken = Symbol('guard.js-token');
     setup();
   }
   return ret;
