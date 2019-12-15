@@ -66,7 +66,7 @@ function withPerm(token, perms, cb) {
   try {
     currentPerms = perms;
     const ret = cb();
-    if (ret.then) {
+    if (ret && ret.then) {
       return {
         then(ok) {
           return withPerm(token, perms, ok);
