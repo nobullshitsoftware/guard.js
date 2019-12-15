@@ -23,6 +23,16 @@ function get2(obj, path) {
   return path.reduce((o, k) => o && o[k], obj);
 }
 
+const realSetImmediate = setImmediate;
+global.setImmediate = function guardWrappedSetImmediate(f) {
+  // this looks SO dodgy. Must check properly.
+  const token = sharedToken;
+  const perms = currentPerms;
+  realSetImmediate(() => {
+    withPerm(token, perms, f);
+  });
+};
+
 function wrap(path, f) {
   return function() {
     if (get(currentPerms, path)) {
