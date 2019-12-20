@@ -39,5 +39,5 @@ impossible. Time will tell.
 
 ## Authors and License
 
-The authors are listed in the AUTHROS file, the license is kept in the LICENSE
+The authors are listed in the AUTHORS file, the license is kept in the LICENSE
 file.
